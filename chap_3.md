@@ -48,4 +48,14 @@ This way, we reduce the number of entries and improve read efficiency.
 The hash table must fit in memory, which can be a limitation for large datasets.
 
 Range queries are not efficient since hash tables do not maintain any order among keys. For entries that need to be queried in a range, we would have to scan the entire file.
-## String Sorted Indexes (SSTables)
+## String Sorted Indexes (SSTables) & Log-Structured Merge Trees (LSM-Trees)
+To address the limitations of hash indexes, we can use Sorted String Tables (SSTables), which store key-value pairs in sorted order by key on disk.
+* The Algorithm (LSM-Tree):
+
+    1. Writes: Incoming writes are added to an in-memory balanced tree (e.g., Red-Black tree) called a Memtable.
+
+    2. Flush: When the Memtable fills up, it is written to disk as a new SSTable segment. Because the tree is already sorted, this write is efficient and sequential.
+
+    3. Reads: The database searches the Memtable first, then the most recent on-disk segment, then older segments.
+
+    4. Compaction: Background processes merge and compact SSTables (similar to the mergesort algorithm).
