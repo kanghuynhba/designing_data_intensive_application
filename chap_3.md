@@ -66,26 +66,19 @@ Segment 3:
 ```
 Some of the issues in a real implementation:
 
-    * File format -> we can use a binary format with fixed-size headers for each record to store key length, value length, and checksum.
-
-    * Deleing records -> We can use a special tombstone record to mark deletions.
-
-    * Crash recovery -> take a snapshot of the in-memory hash table periodically and write it to disk.
-    
-    * Partially written records -> Use checksums to detect and ignore corrupted records.
-    
-    * Concurrency control -> common implementation is to use a single writer thread and multiple reader threads.
+* File format -> we can use a binary format with fixed-size headers for each record to store key length, value length, and checksum.
+* Deleing records -> We can use a special tombstone record to mark deletions.
+* Crash recovery -> take a snapshot of the in-memory hash table periodically and write it to disk.
+* Partially written records -> Use checksums to detect and ignore corrupted records.
+* Concurrency control -> common implementation is to use a single writer thread and multiple reader threads.
 This way, we reduce the number of entries and improve read efficiency.
 ### Advantages
-    * Append-only and segment merging make writes much faster than random writes and can write data sequentially.
-
-    * Segment files are append-only or immutable (a value is not being overwriting), which simplifies crash recovery.
-
-    * Fragmentation is not a problem since we merge segments during compaction.
+* Append-only and segment merging make writes much faster than random writes and can write data sequentially.
+* Segment files are append-only or immutable (a value is not being overwriting), which simplifies crash recovery.
+* Fragmentation is not a problem since we merge segments during compaction.
 ### Limitations
-    * The hash table must fit in memory, which can be a limitation for large datasets. 
-
-    * Range queries are not efficient since hash tables do not maintain any order among keys. For entries that need to be queried in a range, we would have to scan the entire file.
+* The hash table must fit in memory, which can be a limitation for large datasets. 
+* Range queries are not efficient since hash tables do not maintain any order among keys. For entries that need to be queried in a range, we would have to scan the entire file.
 ## String Sorted Indexes (SSTables) & Log-Structured Merge Trees (LSM-Trees)
 To address the limitations of hash indexes, we can use Sorted String Tables (SSTables), which store key-value pairs in sorted order by key on disk.
 * The Algorithm (LSM-Tree):
