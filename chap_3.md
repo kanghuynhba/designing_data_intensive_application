@@ -66,11 +66,16 @@ Segment 3:
 ```
 Some of the issues in a real implementation:
 
-* File format -> we can use a binary format with fixed-size headers for each record to store key length, value length, and checksum.
-* Deleing records -> We can use a special tombstone record to mark deletions.
-* Crash recovery -> take a snapshot of the in-memory hash table periodically and write it to disk.
-* Partially written records -> Use checksums to detect and ignore corrupted records.
-* Concurrency control -> common implementation is to use a single writer thread and multiple reader threads.
+* File format 
+    * &rarr; we can use a binary format with fixed-size headers for each record to store key length, value length, and checksum.
+* Deleing records 
+    * &rarr; We can use a special tombstone record to mark deletions.
+* Crash recovery 
+    * &rarr; take a snapshot of the in-memory hash table periodically and write it to disk.
+* Partially written records 
+    * &rarr; Use checksums to detect and ignore corrupted records.
+* Concurrency control 
+    * &rarr; common implementation is to use a single writer thread and multiple reader threads.
 This way, we reduce the number of entries and improve read efficiency.
 ### Advantages
 * Append-only and segment merging make writes much faster than random writes and can write data sequentially.
@@ -81,7 +86,13 @@ This way, we reduce the number of entries and improve read efficiency.
 * Range queries are not efficient since hash tables do not maintain any order among keys. For entries that need to be queried in a range, we would have to scan the entire file.
 ## String Sorted Indexes (SSTables) & Log-Structured Merge Trees (LSM-Trees)
 To address the limitations of hash indexes, we can use Sorted String Tables (SSTables), which store key-value pairs in sorted order by key on disk.
-* The Algorithm (LSM-Tree):
+How's it better?
+* Merging segments is simple and efficient since both segments are already sorted. 
+    * -> similar to the merge step in the **mergesort algorithm**.
+
+* Range queries are efficient since keys are stored in sorted order.
+
+###The Algorithm (LSM-Tree):
     1. Writes: Incoming writes are added to an in-memory balanced tree (e.g., Red-Black tree) called a **Memtable**.
     2. Flush: When the Memtable fills up, it is written to disk as a new SSTable segment. Because the tree is already sorted, this write is efficient and sequential.
     3. Reads: The database searches the Memtable first, then the most recent on-disk segment, then older segments.
