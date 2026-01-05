@@ -96,7 +96,7 @@ To address the limitations of hash indexes, we can use Sorted String Tables (SST
     ### The Algorithm (LSM-Tree):
     1. Writes: Incoming writes are added to an in-memory balanced tree (e.g., Red-Black tree) called a **Memtable**.
     2. Flush: When the Memtable fills up (~MB), it is written to disk as a new SSTable segment. Because the tree is already sorted, this write is efficient and sequential.
-        * **WAL (Written Ahead Logl)** is often used in conjunction with SSTables to provide durability and crash recovery.
+        * **WAL (Written Ahead Log)** is often used in conjunction with SSTables to provide durability and crash recovery.
             * The Memtable: You hold a stack of books in your hands (RAM), sorting them alphabetically before putting them on the shelf. If you trip and fall (Crash), you drop the books and lose your sorted order.
             * The WAL: Before you pick up a book, you quickly scribble its name on a piece of scrap paper in your pocket.
             * Recovery: If you trip, you look at the paper to see which books you were holding
@@ -109,5 +109,32 @@ To address the limitations of hash indexes, we can use Sorted String Tables (SST
     4. Compaction: Background processes merge and compact SSTables (similar to the mergesort algorithm).
         * This reduces the number of segments and removes duplicate keys, keeping only the most recent value for each key.
 ## B-Tree Family
-Page-oriented storage engines. These engines organize data into fixed-size pages (e.g., 4KB) and use tree structures (like B-Trees or B+ Trees) to index these pages.
+Page-oriented storage engines. B-trees break the database down into fixed-size blocks or pages, traditionally 4KB in size,
+and read or write one page at a time.
+
+This design works more closely to the underlying hardware of hard disks and SSDs.
+
+Each page can be located by an address 
+and we can use these references to construct a tree of pages.
+### How B-Trees Work
+* The basic underlying write operation in a B-tree is to overrite a page on disk with new data.
+* The Tree: pages are arranged in a tree. A root page points to child pages based on key ranges.
+* Crash Recovery: B-trees often use a Write-Ahead Log (WAL) to ensure durability and recoverability.
+### B-Tree Optimizations
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
