@@ -86,16 +86,28 @@ This way, we reduce the number of entries and improve read efficiency.
 * Range queries are not efficient since hash tables do not maintain any order among keys. For entries that need to be queried in a range, we would have to scan the entire file.
 ## String Sorted Indexes (SSTables) & Log-Structured Merge Trees (LSM-Trees)
 To address the limitations of hash indexes, we can use Sorted String Tables (SSTables), which store key-value pairs in sorted order by key on disk.
-How's it better?
+### How's it better?
 * Merging segments is simple and efficient since both segments are already sorted. 
-    * -> similar to the merge step in the **mergesort algorithm**.
-
-* Range queries are efficient since keys are stored in sorted order.
-
-###The Algorithm (LSM-Tree):
+    * &rarr; similar to the merge step in the **mergesort algorithm**.
+* Range queries are efficient since keys are stored in sorted order. 
+    * &rarr; we can use binary search to find the start and end of the range.
+    * Example: to find the key `handiwork` and you do know the offset of the key `handbag` and `handsome`, you can start searching because it must appear somewhere between those two keys.
+    * &rarr; You're no longer need to store the entire index in memory. Instead, you can load only the relevant segments into memory as needed.
+    ### The Algorithm (LSM-Tree):
     1. Writes: Incoming writes are added to an in-memory balanced tree (e.g., Red-Black tree) called a **Memtable**.
-    2. Flush: When the Memtable fills up, it is written to disk as a new SSTable segment. Because the tree is already sorted, this write is efficient and sequential.
+    2. Flush: When the Memtable fills up (~MB), it is written to disk as a new SSTable segment. Because the tree is already sorted, this write is efficient and sequential.
+        * **WAL (Written Ahead Logl)** is often used in conjunction with SSTables to provide durability and crash recovery.
+            * The Memtable: You hold a stack of books in your hands (RAM), sorting them alphabetically before putting them on the shelf. If you trip and fall (Crash), you drop the books and lose your sorted order.
+            * The WAL: Before you pick up a book, you quickly scribble its name on a piece of scrap paper in your pocket.
+            * Recovery: If you trip, you look at the paper to see which books you were holding
+            * Discarding: Once the books are safely on the shelf (SSTable), you throw away the scrap paper because you don't need it anymore.
     3. Reads: The database searches the Memtable first, then the most recent on-disk segment, then older segments.
+        * Bloom Filters can be used to quickly check if a key might not be in a segment before doing a disk read.
+            * Multiple hash functions map keys to bit positions in a bit array.
+            * If any of the bits at those positions are 0, the key is definitely not in the set.
+                * &rarr; This helps avoid unnecessary disk reads.
     4. Compaction: Background processes merge and compact SSTables (similar to the mergesort algorithm).
-
+        * This reduces the number of segments and removes duplicate keys, keeping only the most recent value for each key.
+## B-Tree Family
+Page-oriented storage engines. These engines organize data into fixed-size pages (e.g., 4KB) and use tree structures (like B-Trees or B+ Trees) to index these pages.
 
