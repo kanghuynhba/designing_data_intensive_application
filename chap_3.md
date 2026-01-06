@@ -121,7 +121,19 @@ and we can use these references to construct a tree of pages.
 * The Tree: pages are arranged in a tree. A root page points to child pages based on key ranges.
 * Crash Recovery: B-trees often use a Write-Ahead Log (WAL) to ensure durability and recoverability.
 ### B-Tree Optimizations
-
+* **Copy-on-Write (CoW)**: Instead of overwriting the page and risking corruption (requiring a WAL), some databases write the modified page to a new location and update the parent pointers. This is useful for concurrency (Snapshot Isolation).
+* **Abbreviating Keys**: You don't need to store the entire long string in the internal nodes, just enough of the prefix to act as a signpost (boundary). This saves space and increases the Branching Factor (making the tree shorter).
+* **Leaf Pointers**: Leaf pages often have references (pointers) to their left and right siblings. This allows for scanning keys in order without jumping back up to the parent.
+## Comparing LSM-Trees and B-Trees
+|Feature|LSM-Trees (e.g., Cassandra, RocksDB)|B-Trees (e.g., MySQL, PostgreSQL)|
+|---|---|---|
+|Write Speed|High. Writes are sequential (append-only), which is very fast on magnetic disks and SSDs.|Moderate. Must overwrite pages (random I/O) and write to the WAL.|
+|Read Speed|Slower. Must check Memtable, then potentially multiple SSTable segments.|Faster. Keys exist in exactly one place in the tree. Predictable depth.|
+|Write Amplification|High. Compaction constantly rewrites data in the background.|Moderate. Writes to WAL + Tree Page + Page Splitting.|
+|Fragmentation|Low. Compaction produces tightly packed files.|High. Pages may have unused empty space.|
+|Consistency|Weaker. Duplicate keys can exist in different segments before compaction.|Stronger. Keys exist in only one place; easier to implement range locks.|
+## Conclusion
+Both LSM-trees and B-trees have their strengths and weaknesses. The choice between them depends on the specific requirements of your application, such as read/write patterns, data size, and performance needs.
 
 
 
