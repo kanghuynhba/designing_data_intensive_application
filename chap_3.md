@@ -135,18 +135,23 @@ and we can use these references to construct a tree of pages.
 ## Conclusion
 Both LSM-trees and B-trees have their strengths and weaknesses. The choice between them depends on the specific requirements of your application, such as read/write patterns, data size, and performance needs.
 
+## OLTP vs. OLAP
 
+You must know when to switch from a standard database to a data warehouse.
 
+### OLTP (Online Transaction Processing):
 
+* Use Case: User-facing apps (e-commerce checkout, social media comments).
 
+* Access Pattern: Fetch small number of records by key. Random access.
 
+* Storage: Row-oriented (keeps all user data together).
 
+### OLAP (Online Analytic Processing):
 
+* Use Case: Business intelligence, data science, internal reporting.
 
+* Access Pattern: Scan millions of rows to calculate aggregates (Sum, Average).
 
-
-
-
-
-
+* Storage: Column-oriented.
 
