@@ -17,6 +17,10 @@
     * The leader waits until follower 1 has confirmed that it received the write
     before reporting success to the user, and before making the write visible to other clients.
         * &rarr; This means synchronous.
+        * **Pro**: Guaranteed durability.
+        * **Con**: If the follower hangs, the leader cannot process writes.
     * The leader sends the message, but doesn't wait for a response from the follower.
         * &rarr; This means asynchronous.
-
+        * **Pro**: High throughput; leader isn't blocked by slow followers.
+        * **Con**:: If the leader crashes, recent writes not yet propagated are lost.
+* Semi-Synchronous: One follower is synchronous, the others are asynchronous. This is a common practical compromise.
